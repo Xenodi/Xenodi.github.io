@@ -5,13 +5,13 @@ const path = require("path");
 const crypto = require("crypto");
 const archiver = require("archiver");
 
-function zipDirectory(sourceDir, outPath) {
-    const archive = archiver("zip", { zlib: { level: 9 }});
+function zipDirectory(sourceDir, outPath, destpath) {
+    const archive = archiver("zip", { zlib: { level: 9 }, });
     const stream = fs.createWriteStream(outPath);
 
     return new Promise((resolve, reject) => {
         archive
-            .directory(sourceDir, false)
+            .directory(sourceDir, destpath)
             .on("error", err => reject(err))
             .pipe(stream)
         ;
@@ -40,7 +40,7 @@ fs.readdirSync(path.join(".", "addons")).forEach((addonName) => {
     fs.copyFileSync(path.join(".", "addons", addonName, "addon.xml"), path.join(".", "zips", addonName, "addon.xml"));
     fs.copyFileSync(path.join(".", "addons", addonName, "icon.png"), path.join(".", "zips", addonName, "icon.png"));
 
-    zipDirectory(path.join(".", "addons", addonName), path.join(".", "zips", addonName, `${addonName}-${version}.zip`));
+    zipDirectory(path.join(".", "addons", addonName), path.join(".", "zips", addonName, `${addonName}-${version}.zip`), addonName);
 });
 
 xw.endElement();
