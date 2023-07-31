@@ -25,6 +25,8 @@ const xw = new XMLWriter();
 
 xw.startDocument("1.0", "UTF-8").startElement("addons");
 
+if (!fs.existsSync(path.join(".", "zips"))) fs.mkdirSync(path.join(".", "zips"));
+
 fs.readdirSync(path.join(".", "addons")).forEach((addonName) => {
     const addonXml = fs.readFileSync(path.join(".", "addons", addonName, "addon.xml"), "utf-8");
 
@@ -40,7 +42,9 @@ fs.readdirSync(path.join(".", "addons")).forEach((addonName) => {
     fs.copyFileSync(path.join(".", "addons", addonName, "addon.xml"), path.join(".", "zips", addonName, "addon.xml"));
     fs.copyFileSync(path.join(".", "addons", addonName, "icon.png"), path.join(".", "zips", addonName, "icon.png"));
 
-    zipDirectory(path.join(".", "addons", addonName), path.join(".", "zips", addonName, `${addonName}-${version}.zip`), addonName);
+    zipDirectory(path.join(".", "addons", addonName), path.join(".", "zips", addonName, `${addonName}-${version}.zip`), addonName).then(() => {
+        if (addonName === "repository.xenodi") fs.copyFileSync(path.join(".", "zips", addonName, `${addonName}-${version}.zip`), path.join(".", `${addonName}-${version}.zip`))
+    });
 });
 
 xw.endElement();
