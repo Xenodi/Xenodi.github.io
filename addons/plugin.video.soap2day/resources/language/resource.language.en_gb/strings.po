@@ -1,0 +1,19 @@
+# Kodi Media Center language file
+# Addon Name: KimCartoon
+# Addon id: plugin.video.kimcartoon
+
+msgid ""
+msgstr ""
+
+#resources/settings.xml
+msgctxt "#30000"
+msgid "General"
+msgstr ""
+
+msgctxt "#30001"
+msgid "Base URL"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Image base URL"
+msgstr ""

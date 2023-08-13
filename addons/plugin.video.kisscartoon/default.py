@@ -23,6 +23,7 @@ def ActionMainMenu(params):
             item.find("span", {"class": "mli-info"}).text.strip(),
             item.find("img", {"class": "thumb"})["src"],
             { "action": "ActionWatchEpisode", "path": item.find("a", {"class": "ml-mask"})["href"] },
+            "yellow",
             isFolder=False,
             IsPlayable="true"
         )
