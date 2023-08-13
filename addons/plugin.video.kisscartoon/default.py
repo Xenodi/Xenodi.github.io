@@ -43,7 +43,5 @@ def ActionWatchEpisode(params):
 
     utils.PlayVideo(resp4.split("\n")[-1])
 
-    # utils.PlayVideo(None)
-
 if __name__ == "__main__":
     utils.Main(globals())

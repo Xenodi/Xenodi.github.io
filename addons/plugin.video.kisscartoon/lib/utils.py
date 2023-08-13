@@ -42,7 +42,6 @@ class Listing:
             list_item.setInfo(infoType, infoLabels)
         
         for item in properties.items():
-            XbmcDebug(item)
             list_item.setProperty(item[0], item[1])
 
         vinfo = list_item.getVideoInfoTag()
@@ -60,12 +59,6 @@ class Listing:
         xbmcplugin.endOfDirectory(handle)
 
 def PlayVideo(url, handle=int(sys.argv[1])):
-    XbmcDebug(url)
-    XbmcDebug(handle)
-
-    # play_item = xbmcgui.ListItem(path="https://ia800908.us.archive.org/30/items/TheStranger_0/The_Stranger_512kb.mp4")
-    # xbmcplugin.setResolvedUrl(handle, True, listitem=play_item)
-
     play_item = xbmcgui.ListItem(offscreen=True)
     play_item.setPath(url)
     xbmcplugin.setResolvedUrl(handle, succeeded=True, listitem=play_item)
