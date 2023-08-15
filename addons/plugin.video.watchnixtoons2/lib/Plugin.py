@@ -1383,16 +1383,21 @@ def actionResolve(params):
     def _decodeSource(subContent):
         if six.PY3:
             subContent = str(subContent)
-        chars = subContent[subContent.find('[') : subContent.find(']')]
-        spread = int(re.search(r' - (\d+)\)\; }', subContent[subContent.find(' - '):]).group(1))
-        xbmc.log( chars, level=xbmc.LOGINFO )
-        xbmc.log( str(spread), level=xbmc.LOGINFO )
-        iframe = ''.join(
-            chr(
-                int(''.join(c for c in str(b64decode(char)) if c.isdigit())) - spread
+
+        try:
+            chars = subContent[subContent.find('[') : subContent.find(']')]
+            spread = int(re.search(r' - (\d+)\)\; }', subContent[subContent.find(' - '):]).group(1))
+            xbmc.log( chars, level=xbmc.LOGINFO )
+            xbmc.log( str(spread), level=xbmc.LOGINFO )
+            iframe = ''.join(
+                chr(
+                    int(''.join(c for c in str(b64decode(char)) if c.isdigit())) - spread
+                )
+                for char in chars.replace('"', '').split(',')
             )
-            for char in chars.replace('"', '').split(',')
-        )
+        except Exception:
+            # quick dirty fix
+            iframe = subContent
         try:
             returnUrl = re.search(r'src="([^"]+)', iframe).group(1)
             if not returnUrl.startswith('\\') and not returnUrl.startswith('http'):

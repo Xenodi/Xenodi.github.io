@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<settings>
-    <category label="30000">
-        <setting id="baseUrl" label="30001" type="text" default="https://wwvv.ssoap2day.to/"/>
-        <setting id="imgBaseUrl" label="30002" type="text" default="https://img.soap2dayhd.co/t-max/w_156/h_234/"/>
-    </category>
-</settings>
