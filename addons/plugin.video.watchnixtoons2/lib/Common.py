@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
 
 import xbmc
 import xbmcgui
 import xbmcaddon
 import xbmcvfs
 
-import json
-
 import six
+from six.moves import urllib_parse
 
 try:
     import md5
 except ImportError:
     from hashlib import md5
+
+from lib.constants import PLUGIN_URL
 
 ADDON = xbmcaddon.Addon()
 KODI_VERSION = float(xbmcaddon.Addon('xbmc.addon').getAddonInfo('version')[:4])
@@ -45,13 +47,11 @@ def setRawWindowProperty(prop, data):
     window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
     window.setProperty(prop, data)
 
-
 def setViewMode():
     if ADDON.getSetting('useViewMode') == 'true':
         view_mode_id = ADDON.getSetting('viewModeID')
         if view_mode_id.isdigit():
             xbmc.executebuiltin('Container.SetViewMode(' + view_mode_id + ')')
-
 
 def unescapeHTMLText(text):
 
@@ -69,12 +69,21 @@ def unescapeHTMLText(text):
 
 
 def xbmcDebug(*args):
-    xbmc.log('WatchNixtoons2 > ' + ' '.join((val if isinstance(val, str) else repr(val)) for val in args), xbmc.LOGWARNING)
 
+    """ used for debugging """
 
-# line item set info
-# Fix listitem deprecated warnings
+    xbmc.log(
+        'WatchNixtoons2 > '+' '.join((val if isinstance(val, str) else repr(val)) for val in args),
+        xbmc.LOGWARNING
+    )
+
 def item_set_info( line_item, properties ):
+
+    """
+    line item set info
+    Fix listitem deprecated warnings
+    """
+
     if KODI_VERSION > 19.8:
         vidtag = line_item.getVideoInfoTag()
         if properties.get( 'title' ):
@@ -92,10 +101,13 @@ def item_set_info( line_item, properties ):
     else:
         line_item.setInfo('video', properties)
 
-
-# method to translate path for both PY2 & PY3
-# stops all the if else statements
 def translate_path(path):
+
+    """
+    method to translate path for both PY2 & PY3
+    stops all the if else statements
+    """
+
     if six.PY2:
         return xbmc.translatePath( path )
     return xbmcvfs.translatePath( path )
@@ -113,8 +125,10 @@ def ensure_path_exists(path):
 
     return False
 
-# generates a MD5 hash
+
 def generateMd5(strToMd5):
+
+    """ generates a MD5 hash """
 
     if six.PY2:
         md5_instance = md5.new()
@@ -124,3 +138,19 @@ def generateMd5(strToMd5):
 
     md5_instance.update(strToMd5)
     return md5_instance.hexdigest()
+
+def build_url(query):
+
+    """
+    Helper function to build a Kodi xbmcgui.ListItem URL.
+    :param query: Dictionary of url parameters to put in the URL.
+    :returns: A formatted and urlencoded URL string.
+    """
+
+    return PLUGIN_URL + '?' + \
+        urllib_parse.urlencode({k: v.encode('utf-8') if isinstance(v, six.text_type)
+            else unicode(v, errors='ignore').encode('utf-8')
+            for k, v in query.items()})
+
+if six.PY3:
+    xrange = range

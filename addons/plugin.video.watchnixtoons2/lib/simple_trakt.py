@@ -18,7 +18,6 @@ class SimpleTrakt():
             cls._INSTANCE = SimpleTrakt()
         return cls._INSTANCE
 
-
     @classmethod
     def clearTokens(cls, addon):
         hadToClear = False
@@ -38,7 +37,6 @@ class SimpleTrakt():
         addon.setSetting('trakt_refresh', '')
         return hadToClear
 
-
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update(
@@ -48,7 +46,6 @@ class SimpleTrakt():
                 'trakt-api-version': '2',
             }
         )
-
 
     def ensureAuthorized(self, addon):
         accessToken = addon.getSetting('trakt_access')
@@ -62,9 +59,7 @@ class SimpleTrakt():
         if accessToken:
             self.session.headers.update({'Authorization': 'Bearer ' + accessToken})
             return True
-        else:
-            return False
-
+        return False
 
     def getUserLists(self, addon):
         r1 = self._traktRequest('/users/me/lists', data=None, addon=addon)
@@ -84,17 +79,16 @@ class SimpleTrakt():
             (' (Liked)', ((item['list'] for item in r2.json()) if r2.ok else ()))
         )
 
-
     def getListItems(self, listURL, addon):
         # This query ignores 'person' type objects, like actors.
         r = self._traktRequest(listURL + '/items/movie,show,season,episode?extended=full', data=None, addon=addon)
-        
+
         def _preprocessItemsGen(iterable):
             searchTypes = {'movie': 'movies', 'show': 'series', 'season': 'series', 'episode': 'series'}
             for item in iterable:
                 itemType = item['type']
                 itemProps = item[itemType]
-                
+
                 if itemType == 'season':
                     # Since we can't point to a specific season, point to the show instead.
                     label = itemProps['title'] + ' (' + item['show']['title'] + ')'
@@ -108,25 +102,24 @@ class SimpleTrakt():
                     query = label = itemProps['title']
                     overview = itemProps['overview']
                 yield label, overview, searchTypes[itemType], query
-        
+
         if r.ok:
             return _preprocessItemsGen(r.json())
-        else:
-            return ()
 
+        return ()
 
     def _tryPairDialog(self):
         r = self._traktRequest('/oauth/device/code', {'client_id': self.CLIENT_ID})
         if r.ok:
-            jsonData = r.json()
-            deviceCode = jsonData['device_code']
-            totalTime = jsonData['expires_in']
-            interval = jsonData['interval']
+            json_data = r.json()
+            deviceCode = json_data['device_code']
+            totalTime = json_data['expires_in']
+            interval = json_data['interval']
 
             progressDialog = xbmcgui.DialogProgress()
             progressDialog.create(
                 'Trakt Activation',
-                'Go to [B]' + jsonData['verification_url'] + '[/B] and enter this code:[COLOR aquamarine][B]' + jsonData['user_code'] + '[/B][/COLOR] Time left:'
+                'Go to [B]' + json_data['verification_url'] + '[/B] and enter this code:[COLOR aquamarine][B]' + json_data['user_code'] + '[/B][/COLOR] Time left:'
             )
 
             pollData = {
@@ -139,15 +132,21 @@ class SimpleTrakt():
                 if progressDialog.iscanceled():
                     break
                 percentage = int(s / float(totalTime) * 100.0)
-                progressDialog.update(percentage, 'Go to [B]' + jsonData['verification_url'] + '[/B] and enter this code:[COLOR aquamarine][B]' + jsonData['user_code'] + '[/B][/COLOR] Time left: [B]' + str(totalTime - s) + '[/B] seconds')
+                progressDialog.update(
+                    percentage, 'Go to [B]' + json_data['verification_url'] + \
+                    '[/B] and enter this code:[COLOR aquamarine][B]' + json_data['user_code'] + \
+                    '[/B][/COLOR] Time left: [B]' + str(totalTime - s) + '[/B] seconds'
+                )
 
                 if not (s % interval):
                     r2 = self._traktRequest('/oauth/device/token', pollData)
+
                     if r2.status_code == 200: # Process complete.
                         progressDialog.close()
-                        jsonData = r2.json()
-                        return jsonData['access_token'], jsonData['refresh_token']
-                    elif r2.status_code == 409 or r2.status_code == 418:
+                        json_data = r2.json()
+                        return json_data['access_token'], json_data['refresh_token']
+
+                    if r2.status_code in ( 409, 418 ):
                         progressDialog.close()
                         break
                 sleep(1000)
@@ -155,10 +154,8 @@ class SimpleTrakt():
                 progressDialog.close()
             return None
 
-        else:
-            self._notification('Watchnixtoons2', 'Trakt request failed', useSound=True, isError=True)
-            return None
-
+        self._notification('Watchnixtoons2', 'Trakt request failed', useSound=True, isError=True)
+        return None
 
     def _tryRefreshToken(self, addon):
         refreshToken = addon.getSetting('trakt_refresh')
@@ -175,13 +172,13 @@ class SimpleTrakt():
                 timeout = 10
             )
             if r.ok:
-                jsonData = r.json()
+                json_data = r.json()
                 addon.setSetting('trakt_access', accessToken)
                 addon.setSetting('trakt_refresh', refreshToken) # The refresh token also updates.
                 self.session.headers.update({'Authorization': 'Bearer ' + accessToken})
                 return True
-        return False
 
+        return False
 
     def _traktRequest(self, path, data, addon=None):
         try:
@@ -194,9 +191,8 @@ class SimpleTrakt():
             if addon and r.status_code in (401, 400, 403) and self._tryRefreshToken(addon):
                 r = self._traktRequest(path, data) # Try once more after refreshing the token.
             return r
-        except:
+        except Exception:
             return type('FailedResponse', (object,), {'ok': False, 'status_code': 400})
-
 
     def _notification(self, heading, caption, useSound=False, isError=False):
         icon = xbmcgui.NOTIFICATION_ERROR if isError else xbmcgui.NOTIFICATION_INFO

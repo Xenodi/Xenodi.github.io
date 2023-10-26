@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
 
 import xbmcaddon
-
-import json
 
 from collections import OrderedDict
 
 from lib.constants import *
-from lib.Common import translate_path, ensure_path_exists, generateMd5
+from lib.common import translate_path, ensure_path_exists, generateMd5
 
 ADDON = xbmcaddon.Addon()
 
