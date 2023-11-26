@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addons><?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addons>
+<addon id="plugin.video.fireplace" name="[COLOR orange]Fireplace[/COLOR]" version="0.1.0" provider-name="AceKiron">
+    <requires>
+        <import addon="script.module.six"/>
+        <import addon="plugin.video.youtube"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">[COLOR orange]Fireplace[/COLOR]</summary>
+        <description lang="en_GB">Watch an 10 hour long HD video of a fireplace.</description>
+        <disclaimer lang="en_GB">The authors of this addon do not host any of the content found or have any affiliation with the content providers. This add-on only scrapes web pages.</disclaimer>
+        <language>en</language>
+        <platform>all</platform>
+        <assets>
+            <icon>icon.png</icon>
+        </assets>
+    </extension>
+</addon><?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.watchnixtoons2" name="WatchNixtoons2" version="0.12.0" provider-name="WNT2">
     <requires>
         <import addon="script.module.requests"/>
